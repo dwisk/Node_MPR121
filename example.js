@@ -6,8 +6,8 @@
 // get library
 var MPR121 = require('./index.js');
 
-// setup sensor device id
-var touchsensor = new MPR121(0x52);
+// setup sensor device id 0x5A and i2c-bus 1
+var touchsensor = new MPR121(0x5A, 1);
 
 // initiialze sensor, on success start script
 if (touchsensor.begin()) {

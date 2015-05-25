@@ -63,10 +63,15 @@ var MPR121_SOFTRESET       = 0x80;
  * ==================================================================================================================== */
 
 
-function MPR121(address) {
+function MPR121(address, bus_number) {
 	EventEmitter.call(this);
 
 	this.address = address;
+	if (bus_number != undefined) {
+		this.bus_number = bus_number;
+	} else {
+		this.bus_number = 1;
+	}
 }
 
 // MPR121 inherits EventEmitter
@@ -81,6 +86,7 @@ module.exports = MPR121;
 
 MPR121.prototype._device;
 MPR121.prototype.address;
+MPR121.prototype.bus_number = "1";
 
 
 /* Methods
@@ -101,6 +107,7 @@ var _device;
 
 MPR121.prototype.begin = function(address) {
 
+	// get adress
 	if (address == undefined) {
 		address = this.adress;
 	}
@@ -108,7 +115,11 @@ MPR121.prototype.begin = function(address) {
 		address = MPR121_I2CADDR_DEFAULT;
 	}
 
-	this._device = new i2c(0x5A,{device:'/dev/i2c-2'});
+	// get i2c device string
+	var i2cdevice =  '/dev/i2c-'+this.bus_number;
+
+	// get device
+	this._device = new i2c(address,{device: i2cdevice});
 
 	// Soft reset of device.
 	this._write8Bits(MPR121_SOFTRESET, 0x63);
@@ -118,7 +129,10 @@ MPR121.prototype.begin = function(address) {
 
 	//# Check CDT, SFI, ESI configuration is at default values.
 	var c = this._read8Bits(MPR121_CONFIG2);
-	if (c != 0x24) return false;
+	if (c != 0x24) {
+		console.log("MPR121 Error - device not found. Check address, bus and wiring.")
+		return false;
+	}
 
 	// Set threshold for touch and release to default values.
 	this.set_thresholds(12, 6);
