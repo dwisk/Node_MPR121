@@ -121,6 +121,24 @@ MPR121.prototype.begin = function(address) {
 	// get device
 	this._device = new i2c(address,{device: i2cdevice});
 
+	return this.reset();
+}
+
+
+/*
+ * get config value
+ */
+
+MPR121.prototype.config = function() {
+	return this._read8Bits(MPR121_CONFIG2);
+}
+
+
+/*
+ * reset sensor
+ */
+
+MPR121.prototype.reset = function(touch, release){
 	// Soft reset of device.
 	this._write8Bits(MPR121_SOFTRESET, 0x63);
 
@@ -130,9 +148,9 @@ MPR121.prototype.begin = function(address) {
 	//# Check CDT, SFI, ESI configuration is at default values.
 	var c = this._read8Bits(MPR121_CONFIG2);
 	if (c != 0x24) {
-		console.log("MPR121 Error - device not found. Check address, bus and wiring.")
+		console.log("MPR121 Error - device not found. Check address, bus and wiring. ("+c+" != 36)")
 		return false;
-	}
+	} 
 
 	// Set threshold for touch and release to default values.
 	this.set_thresholds(12, 6);
@@ -158,7 +176,6 @@ MPR121.prototype.begin = function(address) {
 
 	return true;
 }
-
 
 /* 
  * Set the touch and release threshold for all inputs to the provided
