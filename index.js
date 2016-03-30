@@ -12,10 +12,9 @@
 /* Node Inclues
  * ==================================================================================================================== */
 
-var i2c = require('i2c');
+var i2c = require('i2c-bus');
 var util = require('util');
 var EventEmitter = require('events').EventEmitter;
-
 
 /* Constants
  * ==================================================================================================================== */
@@ -66,7 +65,7 @@ var MPR121_SOFTRESET       = 0x80;
 function MPR121(address, bus_number) {
 	EventEmitter.call(this);
 
-	this.address = address;
+	this.address = address || MPR121_I2CADDR_DEFAULT;
 	if (bus_number != undefined) {
 		this.bus_number = bus_number;
 	} else {
@@ -97,30 +96,12 @@ var _device;
 /* 
  * Initialize communication with the MPR121. 
  *
- * Can specify a custom I2C address for the device using the address 
- * parameter (defaults to 0x5A). Optional i2c parameter allows specifying a 
- * custom I2C bus source (defaults to platform's I2C bus).
- * 
  * Returns True if communication with the MPR121 was established, otherwise
  * returns False.
  */
 
-MPR121.prototype.begin = function(address) {
-
-	// get adress
-	if (address == undefined) {
-		address = this.adress;
-	}
-	if (address == undefined) {
-		address = MPR121_I2CADDR_DEFAULT;
-	}
-
-	// get i2c device string
-	var i2cdevice =  '/dev/i2c-'+this.bus_number;
-
-	// get device
-	this._device = new i2c(address,{device: i2cdevice});
-
+MPR121.prototype.begin = function() {
+	this._device = i2c.openSync(this.bus_number);
 	return this.reset();
 }
 
@@ -243,20 +224,15 @@ MPR121.prototype.reset = function(touch, release){
  * Several I2C Helpers
  */
 
-MPR121.prototype._read8Bits = function(reg, callback) {
-	if (callback == undefined) { callback = function() {}; };
-	var ret = this._device.readBytes(reg, 1, function(err, data) { callback(err, data[0]) });
-	return ret.readUInt8(0);
+MPR121.prototype._read8Bits = function(reg) {
+	return this._device.readByteSync(this.address, reg);
 };
 
-MPR121.prototype._read16Bits = function(reg, callback) {
-	if (callback == undefined) { callback = function() {}; };
-	var ret = this._device.readBytes(reg, 2, callback);
-	return ret.readUInt16LE(0);
+MPR121.prototype._read16Bits = function(reg) {
+	return this._device.readWordSync(this.address, reg);
 };
 
-MPR121.prototype._write8Bits = function(reg, value, callback) {
-	if (callback == undefined) { callback = function() {}; };
-	this._device.writeBytes(reg, [value & 0xFF], callback);
+MPR121.prototype._write8Bits = function(reg, value) {
+	this._device.writeByteSync(this.address, reg, value & 0xFF);
 };
 

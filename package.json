@@ -21,6 +21,6 @@
   },
   "homepage": "https://github.com/dwisk/Node_MPR121",
   "dependencies": {
-    "i2c": "^0.2.1"
+    "i2c-bus": "^1.0.2"
   }
 }
