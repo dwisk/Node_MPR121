@@ -1,6 +1,6 @@
 {
   "name": "mpr121",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Access the MPR121 chipset via node-i2c",
   "main": "index.js",
   "scripts": {
