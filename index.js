@@ -119,7 +119,7 @@ MPR121.prototype.config = function() {
  * reset sensor
  */
 
-MPR121.prototype.reset = function(touch, release){
+MPR121.prototype.reset = function(touch = 12, release = 6){
 	// Soft reset of device.
 	this._write8Bits(MPR121_SOFTRESET, 0x63);
 
@@ -134,7 +134,7 @@ MPR121.prototype.reset = function(touch, release){
 	} 
 
 	// Set threshold for touch and release to default values.
-	this.set_thresholds(12, 6);
+	this.set_thresholds(touch, release);
 	// Configure baseline filtering control registers.
 	this._write8Bits(MPR121_MHDR, 0x01);
 	this._write8Bits(MPR121_NHDR, 0x01);
@@ -181,7 +181,7 @@ MPR121.prototype.reset = function(touch, release){
  */
 
  MPR121.prototype.filtered_data = function(pin) {
-	if (pin < 0 || pin >= 12) { return false; }
+	if (pin < 0 || pin >= 12) { return false; }
 	return this._read16Bits(MPR121_FILTDATA_0L + pin*2);
 }
 
@@ -192,7 +192,7 @@ MPR121.prototype.reset = function(touch, release){
  */
 
  MPR121.prototype.baseline_data = function(pin) {
-	if (pin < 0 || pin >= 12) { return false; }
+	if (pin < 0 || pin >= 12) { return false; }
 	var bl = this._read8Bits(MPR121_BASELINE_0 + pin);
 	return bl << 2;
 }
@@ -215,7 +215,7 @@ MPR121.prototype.reset = function(touch, release){
  */
 
  MPR121.prototype.is_touched = function(pin) {
-	if (pin < 0 || pin >= 12) { return false; }
+	if (pin < 0 || pin >= 12) { return false; }
 	var t = this.touched();
 	return (t & (1 << pin)) > 0;
 }
